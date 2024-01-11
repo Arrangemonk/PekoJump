@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PekoJump", "PekoJump.csproj", "{6A6FE1CB-384D-4C6E-B438-25DAE4F817EB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Peko Jump", "PekoJump.csproj", "{21100092-1383-42D8-9566-523874C4277A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6A6FE1CB-384D-4C6E-B438-25DAE4F817EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A6FE1CB-384D-4C6E-B438-25DAE4F817EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A6FE1CB-384D-4C6E-B438-25DAE4F817EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A6FE1CB-384D-4C6E-B438-25DAE4F817EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21100092-1383-42D8-9566-523874C4277A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21100092-1383-42D8-9566-523874C4277A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21100092-1383-42D8-9566-523874C4277A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21100092-1383-42D8-9566-523874C4277A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {CA403D63-6523-496A-91BC-ADDCE9AFC627}
+		SolutionGuid = {8D6466F3-B707-45CD-93F2-77D0B5490484}
 	EndGlobalSection
 EndGlobal
