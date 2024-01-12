@@ -17,13 +17,22 @@ public enum GameState
     end
 }
 
+public class Platform
+{
+
+    public int X { get; set; }
+    public int Y { get; set; }
+    public int Type { get; set; }
+    public float AnimFrame { get; set; }
+    public bool Visible { get; set; }
+}
+
 public class Program
 {
     private static int timer = 0;
 
 
     private static Random Rnd;
-    private static readonly (float, bool)[] Columns = new (float, bool)[4];
     private static GameState gamestate = GameState.logo;
     private static Raylib_cs.Image icon;
     private static Texture2D gameoverscreen;
@@ -50,6 +59,8 @@ public class Program
     private static Sound logo;
     private static Sound jump;
     private static Sound brick;
+    private static Sound poof;
+    private static Sound step;
     private static Sound boing;
     private static Music stagemusic;
     private static Music menu;
@@ -94,8 +105,8 @@ public class Program
         platform = LoadTexture(images, "platform.png");
         platformbroken = LoadTexture(images, "platformbroken.png");
         cloud = LoadTexture(images, "cloud.png");
-        trampoline = LoadTexture(images, "trampoline.png");
-        peko = LoadTexture(images, "pekora.png");
+        trampoline = LoadTexture(images, "trampolineanim.png");
+        peko = LoadTexture(images, "pekanim.png");
         logo1 = LoadTexture(images, "logo.png");
         space = LoadTexture(images, "space.png");
         cForCredits = LoadTexture(images, "credits.png");
@@ -113,6 +124,8 @@ public class Program
         stagemusic = LoadMusicStream(Path.Combine(audio, "stage.mp3"));
         credits = LoadMusicStream(Path.Combine(audio, "credits.mp3"));
         brick = LoadSound(Path.Combine(audio, "brick.mp3"));
+        poof = LoadSound(Path.Combine(audio, "poof.mp3"));
+        step = LoadSound(Path.Combine(audio, "step.mp3"));
         boing = LoadSound(Path.Combine(audio, "boing.mp3"));
         rtex = LoadRenderTexture((int)Width, (int)Width);
         font = LoadFontEx(Path.Combine(folder, Resource1.font), 115, null, 0);
@@ -123,7 +136,8 @@ public class Program
         SetTextureFilter(opensans.texture, TextureFilter.TEXTURE_FILTER_BILINEAR);
         gamestate = GameState.logo;
 
-        platformimages = new[] { platform, platform, platformbroken, cloud, trampoline };
+        InitPlatforms();
+
 
         var bgcolor = new Color(145, 213, 224, 255);
         PlayMusicStream(stagemusic);
@@ -176,7 +190,7 @@ public class Program
         CloseWindow();
         UnloadImage(icon);
         foreach (var texture in textures)
-        
+
             UnloadTexture(texture);
         UnloadMusicStream(stagemusic);
         UnloadMusicStream(menu);
@@ -185,13 +199,15 @@ public class Program
         UnloadSound(logo);
         UnloadSound(jump);
         UnloadSound(brick);
+        UnloadSound(poof);
+        UnloadSound(step);
         UnloadSound(boing);
         UnloadRenderTexture(rtex);
         UnloadFont(font);
         UnloadFont(opensans);
     }
 
-    private static Texture2D LoadTexture(string images,string path)
+    private static Texture2D LoadTexture(string images, string path)
     {
         var texture = Raylib.LoadTexture(Path.Combine(images, path));
         GenTextureMipmaps(ref texture);
@@ -223,8 +239,8 @@ public class Program
         var color = new Color(255, 255, 255, (int)(255 * fract * fade));
         var color2 = new Color(203, 206, 249, (int)(255 * fract2 * fade));
 
-        DrawTexturePro(logo1,new Rectangle(0,0, logo1.width, logo1.height),new Rectangle(Width / 2f - lwidth / 2f, Height / 2f - lheight / 2f,lwidth,lheight),Vector2.Zero,0, color);
-        DrawTextEx(opensans, Resource1.Presents, new Vector2((int)(Width / 2 - MeasureTextEx(font, Resource1.Presents, 55 * scale, 0).X / 2), (int)(Height * 0.70f)), 55 *scale, 0, color2);
+        DrawTexturePro(logo1, new Rectangle(0, 0, logo1.width, logo1.height), new Rectangle(Width / 2f - lwidth / 2f, Height / 2f - lheight / 2f, lwidth, lheight), Vector2.Zero, 0, color);
+        DrawTextEx(opensans, Resource1.Presents, new Vector2((int)(Width / 2 - MeasureTextEx(font, Resource1.Presents, 55 * scale, 0).X / 2), (int)(Height * 0.70f)), 55 * scale, 0, color2);
     }
     private static void Start()
     {
@@ -245,7 +261,7 @@ public class Program
 
             var angle = MathF.Sin(timer / 15f) * 10f;
 
-            DrawTexturePro(menubackground,new Rectangle(0,0,menubackground.width,menubackground.height),new Rectangle(0,0,Width,Height),Vector2.Zero,0,Color.WHITE);
+            DrawTexturePro(menubackground, new Rectangle(0, 0, menubackground.width, menubackground.height), new Rectangle(0, 0, Width, Height), Vector2.Zero, 0, Color.WHITE);
 
             DrawTexturePro(pekoface,
                 new Rectangle(0, 1, pekoface.width, pekoface.height),
@@ -262,7 +278,7 @@ public class Program
             if ((timer / 20) % 4 == 0)
                 DrawTexturePro(space,
                 new Rectangle(0, 0, space.width, space.height),
-                new Rectangle((Width -space.width * scale) * 0.5f, Height * 0.8f, space.width * scale, space.height * scale),
+                new Rectangle((Width - space.width * scale) * 0.5f, Height * 0.8f, space.width * scale, space.height * scale),
                 Vector2.Zero,
                 0, Color.WHITE);
             if ((timer / 20) % 4 == 2)
@@ -329,7 +345,7 @@ public class Program
 
         var y = Height - (timer % scroll);
 
-        TextAligned.DrawTextAligned(font, creditText, new Vector2(Width * 0.5f, y), Fontsize * scale, Spacing, TextAligned.AlignCenter, new Color(255, 144, 224,255));
+        TextAligned.DrawTextAligned(font, creditText, new Vector2(Width * 0.5f, y), Fontsize * scale, Spacing, TextAligned.AlignCenter, new Color(255, 144, 224, 255));
 
         var overlay = Fontsize * 2 * scale;
 
@@ -349,8 +365,18 @@ public class Program
     private static float pekoX = 0f;
     private static float pekoY = 0f;
     private static float pekoSpeed = 0;
-    private static List<Tuple<int, int, int, bool>> platforms;
+    private static List<Platform> platforms;
     private static Texture2D[] platformimages;
+    private static Sound[] platformsounds;
+    private static int[] platformanimframes;
+
+    private static void InitPlatforms()
+    {
+        platformimages = new[] { platform, platform, platformbroken, cloud, trampoline };
+        platformsounds = new[] { step, step, brick, poof, boing };
+        platformanimframes = new[] { 1, 1, 6, 6, 5 };
+    }
+
     const float pekoScale = 0.6f;
     private static float pekoWith;
     private static float pekoheight;
@@ -358,26 +384,29 @@ public class Program
     private static float cameraY;
     private static float multiplicator;
 
-    private static void GeneratePlatform(int y)
+    private static int GeneratePlatform(int lastx, int y)
     {
-        platforms.Add(Tuple.Create(Rnd.Next(25, (int)(origWidth - 25 - platform.width)), y, Rnd.Next(0, 5), true));
+        var x = (lastx + 4 * Rnd.Next(25, (int)(origWidth - 25 - platform.width))) / 5;
+        platforms.Add(new Platform { X = x, Y = y, Type = Rnd.Next(0, 5), Visible = true, AnimFrame = 0 });
+        return x;
     }
     private static void Initialize()
     {
         timer = 0;
-        platforms = new List<Tuple<int, int, int, bool>>();
+        platforms = new List<Platform>();
         cameraY = 0;
-        pekoWith = pekoScale * peko.width;
+        pekoWith = pekoScale * peko.width / 5f;
         pekoheight = pekoScale * peko.height;
         pekoX = (origWidth - pekoWith) / 2f;
         pekoY = (origHeight - pekoheight);
         colliding = true;
         multiplicator = 2;
         var y = (int)origHeight - 50;
+        var x = (int)origWidth / 2;
         while (y > 0)
         {
             y -= platform.height + Rnd.Next((int)(platform.height * 0.75f), platform.height);
-            GeneratePlatform((int)y);
+            x = GeneratePlatform(x, (int)y);
         }
     }
 
@@ -402,13 +431,13 @@ public class Program
         if (IsKeyDown(KeyboardKey.KEY_LEFT))
         {
             pekorientation = 1;
-            pekoX = MathF.Max(-pekoWith *0.5f, pekoX - xspeed);
-            
+            pekoX = MathF.Max(-pekoWith * 0.5f, pekoX - xspeed);
+
         }
         else if (IsKeyDown(KeyboardKey.KEY_RIGHT))
         {
             pekorientation = -1;
-            pekoX = MathF.Min(origWidth - (pekoWith *0.5f), pekoX + xspeed);
+            pekoX = MathF.Min(origWidth - (pekoWith * 0.5f), pekoX + xspeed);
         }
 
         if (colliding)
@@ -446,56 +475,72 @@ public class Program
             PlaySound(ending);
         }
 
-        while (platforms[^1].Item2 > cameraY)
+        while (platforms[^1].Y > cameraY)
         {
-            GeneratePlatform(platforms[^1].Item2 - (platform.height +
-                             Rnd.Next((int)(platform.height * 0.75f), platform.height)));
+            GeneratePlatform(platforms[^1].X, platforms[^1].Y - (platform.height +
+                                                                 Rnd.Next((int)(platform.height * 0.75f), platform.height)));
+        }
+        for (int i = 0; i < platforms.Count; i++)
+        {
+            if (platforms[i].Y > cameraY + origHeight + platform.height)
+            {
+                platforms.RemoveAt(i);
+                i--;
+            }
+            else
+            {
+                break;
+            }
         }
 
-        for (var i = 0; i < platforms.Count; i++)
+        foreach (var p in platforms)
         {
-            var p = platforms[i];
-            if (!p.Item4)
-                continue;
-            var platformrect = new Rectangle(p.Item1, p.Item2, platform.width, 10);
-            if (!colliding && pekoSpeed < 0)
-            {
-                if (CheckCollisionRecs(pekorect, platformrect) && p.Item2 > pekoY)
+            var platformrect = new Rectangle(p.X, p.Y, platform.width, 10);
+            if(p.AnimFrame != 0)
+                p.AnimFrame = MathF.Min(platformanimframes[p.Type], p.AnimFrame + .5f);
+            if (p.Visible)
+                //continue;
+                if (!colliding && pekoSpeed < 0)
                 {
-                    colliding = true;
-                    multiplicator = 1;
-                    switch (p.Item3)
+                    if (CheckCollisionRecs(pekorect, platformrect) && p.Y > pekoY)
                     {
-                        case 4:
-                            multiplicator = 3;
-                            PlaySound(boing);
-                            break;
-                        case 2:
-                            platforms[i] = Tuple.Create(p.Item1, p.Item2, p.Item3, false);
-                            PlaySound(brick);
-                            break;
+                        colliding = true;
+                        multiplicator = 1;
+                        PlaySound(platformsounds[p.Type]);
+                        switch (p.Type)
+                        {
+                            case 4:
+                                multiplicator = 3;
+                                p.AnimFrame = 0.5f;
+                                break;
+                            case 2:
+                            case 3:
+                                p.Visible = false;
+                                p.AnimFrame = 0.5f;
+                                break;
+                        }
                     }
                 }
-            }
 
             //DrawTexture(platformimages[p.Item3], p.Item1, p.Item2 - (int)cameraY - (int)(p.Item3 == 4 ? platform.height * 1.5f : 0), Color.WHITE);
 
-            var platformImage = platformimages[p.Item3];
+            var platformImage = platformimages[p.Type];
             DrawTexturePro(platformImage,
-                new Rectangle(1, 1, platformImage.width -2, platformImage.height -2),
-                new Rectangle(p.Item1 * scale, (p.Item2 - cameraY - (p.Item3 == 4 ? platform.height * 1.5f : 0)) * scale, platformImage.width * scale, platformImage.height * scale),
+                new Rectangle(1 + platform.width * MathF.Floor(p.AnimFrame) , 1, platform.width - 2, platformImage.height - 2),
+                new Rectangle(p.X * scale, (p.Y - cameraY - (p.Type == 4 ? platform.height * 1.5f : 0)) * scale, platform.width * scale, platformImage.height * scale),
                 Vector2.Zero,
                 0, Color.WHITE);
-
         }
 
-        DrawTexturePro(peko, new Rectangle(0, 0, peko.width * pekorientation, peko.height),
+        var animframe = Math.Max(0, MathF.Floor(MathF.Min(35f, MathF.Pow(MathF.Abs(pekoSpeed), 1.5f)) / 35f * 5f) - 1);
+
+        DrawTexturePro(peko, new Rectangle(peko.width / 5f * animframe, 0, peko.width / 5f * pekorientation, peko.height),
             new Rectangle(pekoX * scale, (pekoY - cameraY) * scale, pekoWith * scale, pekoheight * scale),
             Vector2.Zero, 0, Color.WHITE);
 
-        //DrawText(pekoY.ToString(CultureInfo.InvariantCulture), 10, 10, 20, Color.WHITE);
-        //DrawText(cameraY.ToString(CultureInfo.InvariantCulture), 10, 30, 20, Color.WHITE);
-
+        DrawText(pekoSpeed.ToString(CultureInfo.InvariantCulture), 10, 10, 20, Color.WHITE);
+        DrawText(animframe.ToString(CultureInfo.InvariantCulture), 10, 30, 20, Color.WHITE);
+        DrawText(pekoSpeed.ToString(CultureInfo.InvariantCulture), 10, 50, 20, Color.WHITE);
 
         timer++;
     }

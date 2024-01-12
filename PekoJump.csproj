@@ -21,13 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="carrot.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Raylib-cs" Version="4.5.0.1" />
   </ItemGroup>
 
@@ -80,7 +73,13 @@
     <None Update="Resources\audio\logo.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\audio\poof.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\audio\stage.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\audio\step.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\Credits.txt">
@@ -142,6 +141,9 @@
     <None Update="Resources\images\menubackground.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\images\pekanim.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\images\pekoFace.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -179,6 +181,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\images\trampoline.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\images\trampolineanim.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Resources\images\wall.png">
