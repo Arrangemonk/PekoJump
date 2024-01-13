@@ -6,6 +6,7 @@ Title Art (Pekora)
 JJjatiers (https://www.deviantart.com/jjjatiers)
 
 Character/Object Sprite Art
+Yukusai
 Yukiiro Alice
 Arrangemonk
 
@@ -17,13 +18,13 @@ Sledgehammer by SoundsnapFX
 (https://freesound.org/people/SoundsnapFX/sounds/583964/)
 
 CODE
-
 Arrangemonk
 
 TESTING
-
 Arrangemonk
 Kurohina
+Coins
+
 
 This is an unofficial
 parody Game based on
